@@ -1,0 +1,34 @@
+extends Node
+
+enum Realm { NORMAL, VEIL }
+
+var current_realm = Realm.NORMAL
+var cooldown := 3.0
+var can_shift := true
+
+signal realm_changed(new_realm)
+
+func toggle_shift(player):
+    if not can_shift:
+        return
+
+    can_shift = false
+
+    if current_realm == Realm.NORMAL:
+        current_realm = Realm.VEIL
+    else:
+        current_realm = Realm.NORMAL
+
+    emit_signal("realm_changed", current_realm)
+
+    apply_realm_effects(player)
+
+    await get_tree().create_timer(cooldown).timeout
+    can_shift = true
+
+func apply_realm_effects(player):
+    if current_realm == Realm.VEIL:
+        # darker vision
+        player.get_node("Camera3D").environment.adjustment_brightness = 0.6
+    else:
+        player.get_node("Camera3D").environment.adjustment_brightness = 1.0
